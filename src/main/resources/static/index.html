@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Management System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          background: #f4f6f9;
+          margin: 0;
+          padding: 0;
+        }
+
+        header {
+          background: #2563eb;
+          color: white;
+          padding: 15px;
+          text-align: center;
+        }
+
+        nav {
+          display: flex;
+          justify-content: center;
+          background: #1e40af;
+        }
+
+        nav button {
+          background: transparent;
+          color: white;
+          border: none;
+          padding: 12px 20px;
+          cursor: pointer;
+          font-size: 15px;
+        }
+
+        nav button:hover,
+        nav button.active {
+          background: #3b82f6;
+        }
+
+        .container {
+          max-width: 1000px;
+          margin: 20px auto;
+          background: white;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+          margin-top: 0;
+          color: #1e3a8a;
+        }
+
+        form {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 15px;
+          margin-bottom: 20px;
+        }
+
+        form input, form button {
+          padding: 8px;
+          font-size: 14px;
+        }
+
+        form button {
+          background: #2563eb;
+          color: white;
+          border: none;
+          cursor: pointer;
+          border-radius: 4px;
+        }
+
+        form button:hover {
+          background: #1d4ed8;
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        table th, table td {
+          border: 1px solid #ddd;
+          padding: 8px;
+          text-align: center;
+        }
+
+        table th {
+          background: #eff6ff;
+        }
+
+        .hidden {
+          display: none;
+        }
+
+        .btn-delete {
+          background: #dc2626;
+          color: white;
+          border: none;
+          padding: 5px 8px;
+          cursor: pointer;
+        }
+
+        .btn-edit {
+          background: #16a34a;
+          color: white;
+          border: none;
+          padding: 5px 8px;
+          cursor: pointer;
+          margin-right: 5px;
+        }
+
+        .btn-clear {
+          background: #6b7280;
+          color: white;
+          border: none;
+          padding: 6px 10px;
+          cursor: pointer;
+          border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Employee – Department Management</h1>
+</header>
+
+<nav>
+    <button class="active" onclick="showSection('employee', event)">Employees</button>
+    <button onclick="showSection('department', event)">Departments</button>
+</nav>
+
+<!-- ================= EMPLOYEE SECTION ================= -->
+<div class="container" id="employee-section">
+    <h2>Employee Management</h2>
+
+    <div style="margin-bottom:10px;">
+        <button onclick="loadEmployees()">Show All Employees</button>
+        <button onclick="clearEmployeeTable()">Clear Table</button>
+    </div>
+
+    <form id="employeeForm">
+        <input type="hidden" id="empId">
+
+        <input type="text" id="empName" placeholder="Name" required>
+        <input type="email" id="empEmail" placeholder="Email" required>
+        <input type="text" id="empDept" placeholder="Department" required>
+        <input type="text" id="empPhone" placeholder="Phone" required>
+
+        <button type="submit">Add/Save Employee</button>
+        <button type="button" class="btn-clear" onclick="clearEmployeeForm()">Clear</button>
+    </form>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Phone</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="employeeTable"></tbody>
+    </table>
+</div>
+
+<!-- ================= DEPARTMENT SECTION ================= -->
+<div class="container hidden" id="department-section">
+    <h2>Department Management</h2>
+
+    <div style="margin-bottom:10px;">
+        <button onclick="loadDepartments()">Show All Departments</button>
+        <button onclick="clearDeptTable()">Clear Table</button>
+    </div>
+
+    <form id="deptForm">
+        <input type="hidden" id="deptId">
+
+        <input type="text" id="deptName" placeholder="Department Name" required>
+        <input type="text" id="deptLocation" placeholder="Location" required>
+
+        <button type="submit">Save Department</button>
+        <button type="button" class="btn-clear" onclick="clearDeptForm()">Clear</button>
+    </form>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="deptTable"></tbody>
+    </table>
+</div>
+
+<script>
+
+  // ================= API CONFIG =================
+
+  const API = {
+    EMP: 'http://localhost:8080/api/employees',
+    DEPT: 'http://localhost:8080/api/departments'
+  };
+
+  // ================= NAVIGATION =================
+
+  function showSection(section, event) {
+
+    document.querySelectorAll('.container').forEach(div => {
+      div.classList.add('hidden');
+    });
+
+    document.getElementById(section + '-section').classList.remove('hidden');
+
+    document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+
+  // ================= COMMON API CALL =================
+
+  async function apiCall(url, method = 'GET', data = null) {
+
+  const options = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache'
+    }
+  };
+
+  if (data) {
+    options.body = JSON.stringify(data);
+  }
+
+  const response = await fetch(url, options);
+
+  if (!response.ok) {
+    throw new Error('API Error');
+  }
+
+  // ✅ Read response as text first
+  const text = await response.text();
+
+  // ✅ If empty → return null
+  if (!text) return null;
+
+  // ✅ Else parse JSON
+  return JSON.parse(text);
+}
+
+  // ================= EMPLOYEE =================
+
+  async function loadEmployees() {
+
+    // ✅ Disable cache
+    const employees = await apiCall(
+      API.EMP + '?t=' + new Date().getTime()
+    );
+
+    const tbody = document.getElementById('employeeTable');
+    tbody.innerHTML = '';
+
+    if (!employees || employees.length === 0) {
+      tbody.innerHTML =
+        '<tr><td colspan="6">No Employees Found</td></tr>';
+      return;
+    }
+
+    employees.forEach(e => {
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${e.id}</td>
+          <td>${e.name}</td>
+          <td>${e.email}</td>
+          <td>${e.department}</td>
+          <td>${e.phone}</td>
+          <td>
+            <button class="btn-edit"
+              onclick='editEmployee(${JSON.stringify(e)})'>
+              Edit
+            </button>
+
+            <button class="btn-delete"
+              onclick='deleteEmployee(${e.id})'>
+              Delete
+            </button>
+          </td>
+        </tr>`;
+    });
+  }
+
+  // ADD / UPDATE EMPLOYEE
+
+  document.getElementById('employeeForm')
+    .addEventListener('submit', async e => {
+
+      e.preventDefault();
+
+      const emp = {
+        name: empName.value,
+        email: empEmail.value,
+        department: empDept.value,
+        phone: empPhone.value
+      };
+
+      const id = empId.value;
+
+      if (id) {
+        await apiCall(`${API.EMP}/${id}`, 'PUT', emp);
+      } else {
+        await apiCall(API.EMP, 'POST', emp);
+      }
+
+      clearEmployeeForm();
+      loadEmployees();
+    });
+
+  // EDIT EMPLOYEE
+
+  function editEmployee(e) {
+
+    empId.value = e.id;
+    empName.value = e.name;
+    empEmail.value = e.email;
+    empDept.value = e.department;
+    empPhone.value = e.phone;
+  }
+
+  // DELETE EMPLOYEE
+
+ async function deleteEmployee(id) {
+
+  if (!confirm('Delete this employee?')) return;
+
+  try {
+
+    await apiCall(`${API.EMP}/${id}`, 'DELETE');
+
+    await loadEmployees(); // wait for reload
+
+  } catch (e) {
+
+    console.error(e);
+    alert('Delete failed');
+  }
+}
+
+
+  // CLEAR FORM
+
+  function clearEmployeeForm() {
+
+    empId.value = '';
+    document.getElementById('employeeForm').reset();
+  }
+
+  // CLEAR TABLE
+
+  function clearEmployeeTable() {
+    document.getElementById('employeeTable').innerHTML = '';
+  }
+
+  // ================= DEPARTMENT =================
+
+  async function loadDepartments() {
+
+    const depts = await apiCall(
+      API.DEPT + '?t=' + new Date().getTime()
+    );
+
+    const tbody = document.getElementById('deptTable');
+    tbody.innerHTML = '';
+
+    if (!depts || depts.length === 0) {
+      tbody.innerHTML =
+        '<tr><td colspan="4">No Departments Found</td></tr>';
+      return;
+    }
+
+    depts.forEach(d => {
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${d.id}</td>
+          <td>${d.name}</td>
+          <td>${d.location}</td>
+          <td>
+            <button class="btn-edit"
+              onclick='editDept(${JSON.stringify(d)})'>
+              Edit
+            </button>
+
+            <button class="btn-delete"
+              onclick='deleteDept(${d.id})'>
+              Delete
+            </button>
+          </td>
+        </tr>`;
+    });
+  }
+
+  // ADD / UPDATE DEPARTMENT
+
+  document.getElementById('deptForm')
+    .addEventListener('submit', async e => {
+
+      e.preventDefault();
+
+      const dept = {
+        name: deptName.value,
+        location: deptLocation.value
+      };
+
+      const id = deptId.value;
+
+      if (id) {
+        await apiCall(`${API.DEPT}/${id}`, 'PUT', dept);
+      } else {
+        await apiCall(API.DEPT, 'POST', dept);
+      }
+
+      clearDeptForm();
+      loadDepartments();
+    });
+
+  // EDIT DEPARTMENT
+
+  function editDept(d) {
+
+    deptId.value = d.id;
+    deptName.value = d.name;
+    deptLocation.value = d.location;
+  }
+
+  // DELETE DEPARTMENT
+
+  async function deleteDept(id) {
+
+    if (!confirm('Delete this department?')) return;
+
+    await apiCall(`${API.DEPT}/${id}`, 'DELETE');
+
+    loadDepartments();
+  }
+
+  // CLEAR FORM
+
+  function clearDeptForm() {
+
+    deptId.value = '';
+    document.getElementById('deptForm').reset();
+  }
+
+  // CLEAR TABLE
+
+  function clearDeptTable() {
+    document.getElementById('deptTable').innerHTML = '';
+  }
+
+  // ================= INIT =================
+
+  window.onload = () => {
+    // ❗ No auto-load
+    // User must click \"Show All\"
+  };
+
+</script>
+
+</body>
+</html>
