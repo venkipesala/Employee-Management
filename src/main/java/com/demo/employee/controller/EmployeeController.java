@@ -1,8 +1,12 @@
 package com.demo.employee.controller;
 
+import com.demo.employee.dto.EmployeeDTO;
+import com.demo.employee.entity.Department;
 import com.demo.employee.entity.Employee;
+import com.demo.employee.repository.DepartmentRepository;
 import com.demo.employee.service.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.data.domain.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,39 +17,48 @@ import java.util.List;
 public class EmployeeController {
 
     private final EmployeeService service;
+    private final DepartmentRepository deptRepo;
 
-    public EmployeeController(EmployeeService service) {
+    public EmployeeController(EmployeeService service,
+                              DepartmentRepository deptRepo) {
         this.service = service;
+        this.deptRepo = deptRepo;
     }
 
     @PostMapping
-    @Operation(summary = "Create Employee")
-    public Employee create(@RequestBody Employee employee) {
-        return service.save(employee);
+    public Employee create(@RequestBody EmployeeDTO req) {
+        return service.saveWithDept(req);
     }
 
-    @GetMapping
-    @Operation(summary = "Get All Employees")
-    public List<Employee> getAll() {
-        return service.getAll();
-    }
-
+    // GET BY ID
     @GetMapping("/{id}")
     @Operation(summary = "Get Employee by ID")
     public Employee getById(@PathVariable Long id) {
-        return service.getById(id)
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
+        return service.getById(id);
     }
 
+    // UPDATE
     @PutMapping("/{id}")
-    @Operation(summary = "Update Employee")
-    public Employee update(@PathVariable Long id, @RequestBody Employee employee) {
-        return service.update(id, employee);
+    public Employee update(
+            @PathVariable Long id,
+            @RequestBody EmployeeDTO req
+    ) {
+        return service.updateWithDept(id, req);
     }
 
+    // DELETE
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete Employee")
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
+
+    @GetMapping
+    public Page<Employee> getAll(
+            @RequestParam(defaultValue="") String search,
+            Pageable pageable) {
+
+        return service.search(search, pageable);
+    }
+
 }
