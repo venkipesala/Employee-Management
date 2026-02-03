@@ -9,6 +9,7 @@ pipeline {
         AWS_REGION = 'ap-south-1'
         CLUSTER    = 'ecs-cluster'
         SERVICE    = 'employee-task-service-pio1exln'
+        TASK_FAMILY = 'employee-task'
         ECR_REPO = '315974965922.dkr.ecr.ap-south-1.amazonaws.com/employee-app'
         IMAGE_TAG = "${BUILD_NUMBER}"
     }
@@ -36,6 +37,45 @@ pipeline {
 
                   mvn clean compile jib:build \
                     -Djib.to.image=$ECR_REPO:$IMAGE_TAG
+                '''
+            }
+        }
+
+        stage('Create New Task Definition') {
+            steps {
+                sh '''
+                  echo "Downloading current task definition..."
+
+                  aws ecs describe-task-definition \
+                    --task-definition $TASK_FAMILY \
+                    --region $AWS_REGION \
+                    > task-def.json
+
+
+                  echo "Replacing image tag..."
+
+                  cat task-def.json \
+                  | jq '.taskDefinition
+                    | del(
+                      .taskDefinitionArn,
+                      .revision,
+                      .status,
+                      .requiresAttributes,
+                      .compatibilities,
+                      .registeredAt,
+                      .registeredBy
+                    )
+                    | .containerDefinitions[0].image =
+                      "'$ECR_REPO:$IMAGE_TAG'"
+                    ' \
+                  > new-task-def.json
+
+
+                  echo "Registering new task definition..."
+
+                  aws ecs register-task-definition \
+                    --cli-input-json file://new-task-def.json \
+                    --region $AWS_REGION
                 '''
             }
         }
