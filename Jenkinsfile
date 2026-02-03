@@ -9,6 +9,8 @@ pipeline {
         AWS_REGION = 'ap-south-1'
         CLUSTER    = 'ecs-cluster'
         SERVICE    = 'employee-task-service-pio1exln'
+        ECR_REPO = '315974965922.dkr.ecr.ap-south-1.amazonaws.com/employee-app'
+        IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
     stages {
@@ -30,9 +32,10 @@ pipeline {
                     --username AWS \
                     --password-stdin 315974965922.dkr.ecr.ap-south-1.amazonaws.com
 
-                  echo "Building & Pushing Image..."
+                  echo "Building & Pushing Image...$ECR_REPO:$IMAGE_TAG"
 
-                  mvn clean compile jib:build
+                  mvn clean compile jib:build \
+                    -Djib.to.image=$ECR_REPO:$IMAGE_TAG
                 '''
             }
         }
