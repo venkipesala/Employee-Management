@@ -23,7 +23,14 @@ pipeline {
         stage('Build & Push Image (Jib → ECR)') {
             steps {
                 sh '''
-                  echo "Building & Pushing Image to ECR..."
+                  echo "Logging into ECR..."
+
+                  aws ecr get-login-password --region $AWS_REGION \
+                  | docker login \
+                    --username AWS \
+                    --password-stdin 315974965922.dkr.ecr.ap-south-1.amazonaws.com
+
+                  echo "Building & Pushing Image..."
 
                   mvn clean compile jib:build
                 '''
