@@ -25,11 +25,14 @@ const projectStart = document.getElementById("projectStart");
 const projectEnd = document.getElementById("projectEnd");
 
 /* ================= API CONFIG ================= */
-    const API = {
-      EMP: '/api/employees',
-      DEPT: '/api/departments',
-      PROJ: '/api/projects'
-    };
+
+const BASE_API = "https://api.mycompany.com";
+
+const API = {
+  EMP: `${BASE_API}/api/employees`,
+  DEPT: `${BASE_API}/api/departments`,
+  PROJ: `${BASE_API}/api/projects`
+};
 
     let assignDeptId = null;
     let currentDeptId = null;

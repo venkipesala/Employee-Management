@@ -1,0 +1,41 @@
+pipeline {
+  agent any
+
+  environment {
+    AWS_CREDS = 'aws-jenkins'
+    BUCKET = 'employee-management-ui-venkipesala'
+    REGION = 'ap-south-1'
+  }
+
+  stages {
+
+    stage('Checkout') {
+      steps {
+        git credentialsId: 'github-cred',
+            url: 'https://github.com/your/repo.git'
+      }
+    }
+
+    stage('Build Frontend') {
+      steps {
+        echo "No build needed (Static UI)"
+      }
+    }
+
+    stage('Deploy to S3') {
+      steps {
+        withAWS(credentials: AWS_CREDS, region: REGION) {
+          sh '''
+            aws s3 sync frontend/ s3://$BUCKET --delete
+          '''
+        }
+      }
+    }
+  }
+
+  post {
+    success {
+      echo "UI Deployed Successfully"
+    }
+  }
+}
