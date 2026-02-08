@@ -26,7 +26,7 @@ const projectEnd = document.getElementById("projectEnd");
 
 /* ================= API CONFIG ================= */
 
-const BASE_API = "https://api.mycompany.com";
+const BASE_API = "https://wtjm24l838.execute-api.ap-south-1.amazonaws.com/dev";
 
 const API = {
   EMP: `${BASE_API}/api/employees`,
