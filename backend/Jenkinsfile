@@ -22,7 +22,7 @@ pipeline {
 
         // ECS
         CLUSTER     = 'ecs-cluster'
-        SERVICE     = 'employee-task-service-pio1exln'
+        SERVICE     = 'employee-task-service-v2'
         TASK_FAMILY = 'employee-task'
     }
 
