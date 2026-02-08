@@ -1,0 +1,149 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'JDK21'
+        maven 'Maven3'
+    }
+
+    environment {
+        // AWS
+        AWS_REGION = 'ap-south-1'
+        AWS_CREDS  = 'aws-jenkins'
+
+        ACCOUNT_ID = '315974965922'
+
+        // ECR
+        ECR_REPO = 'employee-app'
+
+        IMAGE =
+        "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
+
+        IMAGE_TAG = "${BUILD_NUMBER}"
+
+        // ECS
+        CLUSTER     = 'ecs-cluster'
+        SERVICE     = 'employee-task-service-pio1exln'
+        TASK_FAMILY = 'employee-task'
+    }
+
+    stages {
+
+        /* ================= CHECKOUT ================= */
+
+        stage('Checkout') {
+            steps {
+                git branch: 'master',
+                    credentialsId: 'github-cred',
+                    url: 'https://github.com/venkipesala/Employee-Management.git'
+            }
+        }
+
+        /* ================= BUILD + PUSH ================= */
+        stage('Build & Push Image (Jib → ECR)') {
+            steps {
+                withAWS(credentials: AWS_CREDS, region: AWS_REGION) {
+                    sh '''
+
+                    echo "Login to ECR..."
+
+                    aws ecr get-login-password \
+                      --region $AWS_REGION |
+                    docker login \
+                      --username AWS \
+                      --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
+                    echo "Move to backend..."
+
+                    cd backend
+
+                    echo "Build & Push Image: $IMAGE:$IMAGE_TAG"
+
+                    mvn clean compile jib:build \
+                      -Djib.to.image=$IMAGE:$IMAGE_TAG
+
+                    '''
+                }
+            }
+        }
+
+        /* ================= TASK DEF ================= */
+        stage('Register New Task Definition') {
+            steps {
+                withAWS(credentials: AWS_CREDS, region: AWS_REGION) {
+                    sh '''
+
+                    echo "Download current task definition..."
+
+                    aws ecs describe-task-definition \
+                      --task-definition $TASK_FAMILY \
+                      > task-def.json
+
+                    echo "Update image..."
+
+                    cat task-def.json | jq '
+                      .taskDefinition
+                      | del(
+                          .taskDefinitionArn,
+                          .revision,
+                          .status,
+                          .requiresAttributes,
+                          .compatibilities,
+                          .registeredAt,
+                          .registeredBy
+                        )
+                      | .containerDefinitions[0].image =
+                        "'$IMAGE:$IMAGE_TAG'"
+                    ' > new-task-def.json
+
+                    echo "Register new revision..."
+
+                    aws ecs register-task-definition \
+                      --cli-input-json file://new-task-def.json \
+                      > register-output.json
+
+                    REVISION=$(cat register-output.json |
+                      jq '.taskDefinition.revision')
+
+                    echo "New Revision: $REVISION"
+
+                    echo $REVISION > revision.txt
+
+                    '''
+                }
+            }
+        }
+
+        /* ================= DEPLOY ================= */
+        stage('Deploy to ECS') {
+            steps {
+                withAWS(credentials: AWS_CREDS, region: AWS_REGION) {
+                    sh '''
+
+                    REVISION=$(cat revision.txt)
+
+                    echo "Deploying: $TASK_FAMILY:$REVISION"
+
+                    aws ecs update-service \
+                      --cluster $CLUSTER \
+                      --service $SERVICE \
+                      --task-definition $TASK_FAMILY:$REVISION \
+                      --force-new-deployment
+
+                    '''
+                }
+            }
+        }
+    }
+
+    /* ================= STATUS ================= */
+    post {
+        success {
+            echo '✅ Backend Deployed Successfully to ECS 🚀'
+        }
+
+        failure {
+            echo '❌ Backend Deployment Failed'
+        }
+    }
+}
