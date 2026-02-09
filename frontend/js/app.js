@@ -26,12 +26,13 @@ const projectEnd = document.getElementById("projectEnd");
 
 /* ================= API CONFIG ================= */
 
-const BASE_API = "https://wtjm24l838.execute-api.ap-south-1.amazonaws.com/dev";
+const BASE_API = "https://5my4jefft9.execute-api.ap-south-1.amazonaws.com/dev";
+const API_KEY = "YOUR_REAL_API_KEY_HERE";
 
 const API = {
   EMP: `${BASE_API}/api/employees`,
   DEPT: `${BASE_API}/api/departments`,
-  PROJ: `${BASE_API}/api/projects`
+  PROJ: `${BASE_API}`/api`/projects`
 };
 
     let assignDeptId = null;
@@ -87,27 +88,27 @@ const API = {
       const options = {
         method,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY   // ✅ AUTH HEADER HERE
         }
       };
 
       if (data) {
         options.body = JSON.stringify(data);
       }
-
       const res = await fetch(url, options);
 
       if (!res.ok) {
-        throw new Error('API Error');
+        const msg = await res.text();
+        throw new Error(msg || 'API Error');
       }
-
       const text = await res.text();
 
       return text ? JSON.parse(text) : null;
     }
 
-   /* ================= EMPLOYEE ================= */
 
+   /* ================= EMPLOYEE ================= */
   let empPage = 0;
   const empSize = 5;
 
@@ -533,7 +534,7 @@ document.getElementById('deptForm')
     if (!currentDeptId) return;
 
     const data = await apiCall(
-      `/api/employees?search=${search}&page=0&size=10`
+      `${API.EMP}?search=${search}&page=0&size=10`
     );
 
     const list = data.content;
@@ -574,7 +575,7 @@ document.getElementById('deptForm')
       .map(i => i.value);
 
     await apiCall(
-      `/api/departments/${currentDeptId}/employees`,
+      `${API.DEPT}/${currentDeptId}/employees`,
       'PUT',
       ids
     );
@@ -642,7 +643,7 @@ document.getElementById('deptForm')
 
     try {
       const data = await apiCall(
-        `/api/employees?search=${search}&page=0&size=20`
+        `${API.EMP}?search=${search}&page=0&size=20`
       );
 
       const list = data.content;
@@ -715,7 +716,7 @@ document.getElementById("assignedCount").innerText =
     if (assignProjectId) {
 
       await apiCall(
-        `/api/projects/${assignProjectId}/employees`,
+        `${API.PROJ}/${assignProjectId}/employees`,
         'PUT',
         currentAssignedEmpIds
       );
@@ -735,7 +736,7 @@ document.getElementById("assignedCount").innerText =
     if (assignDeptId) {
 
       await apiCall(
-        `/api/departments/${assignDeptId}/employees`,
+        `${API.DEPT}/${assignDeptId}/employees`,
         'PUT',
         currentAssignedEmpIds
       );
