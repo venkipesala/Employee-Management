@@ -4,7 +4,7 @@ const API_KEY = "JBaXPwTkVz3SjPpDa44sG1lJ1mUdSVqHayP3LOwV";
 const API = {
   EMP: `${BASE_API}/api/employees`,
   DEPT: `${BASE_API}/api/departments`,
-  PROJ: `${BASE_API}`/api`/projects`
+  PROJ: `${BASE_API}/api`/projects`
 };
 
 document.addEventListener("DOMContentLoaded", () => {
