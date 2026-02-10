@@ -35,60 +35,58 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function init() {
 
-// Make elements global and Bind DOM elements AFTER page loads
+   // Bind DOM
 
-const empName = document.getElementById("empName");
-const empEmail = document.getElementById("empEmail");
-const empDept = document.getElementById("empDept");
-const empPhone = document.getElementById("empPhone");
-const empId = document.getElementById("empId");
+   empName = document.getElementById("empName");
+   empEmail = document.getElementById("empEmail");
+   empDept = document.getElementById("empDept");
+   empPhone = document.getElementById("empPhone");
+   empId = document.getElementById("empId");
 
-const deptId = document.getElementById("deptId");
-const deptName = document.getElementById("deptName");
-const deptLocation = document.getElementById("deptLocation");
+   deptId = document.getElementById("deptId");
+   deptName = document.getElementById("deptName");
+   deptLocation = document.getElementById("deptLocation");
 
-const projectId = document.getElementById("projectId");
-const projectName = document.getElementById("projectName");
-const projectStatus = document.getElementById("projectStatus");
-const projectStart = document.getElementById("projectStart");
-const projectEnd = document.getElementById("projectEnd");
+   projectId = document.getElementById("projectId");
+   projectName = document.getElementById("projectName");
+   projectStatus = document.getElementById("projectStatus");
+   projectStart = document.getElementById("projectStart");
+   projectEnd = document.getElementById("projectEnd");
 
-    document.getElementById('employeeForm')
-      .addEventListener('submit', async e => {
 
-      e.preventDefault();
+   // Bind Employee Form AFTER DOM loaded
 
-      const emp = {
-        name: empName.value,
-        email: empEmail.value,
-        deptId: empDept.value,
-        phone: empPhone.value
-      };
+   const empForm = document.getElementById("employeeForm");
 
-      const id = empId.value;
+   empForm.addEventListener("submit", async e => {
 
-      if (id) {
-        await apiCall(`${API.EMP}/${id}`, 'PUT', emp);
-      } else {
-        await apiCall(API.EMP, 'POST', emp);
-      }
+     e.preventDefault();
 
-      clearEmployeeForm();
-      loadEmployees(0);
-      });
+     const emp = {
+       name: empName.value,
+       email: empEmail.value,
+       deptId: empDept.value,
+       phone: empPhone.value
+     };
 
-      function editEmployee(e) {
+     const id = empId.value;
 
-      empId.value = e.id;
-      empName.value = e.name;
-      empEmail.value = e.email;
-      empDept.value = e.department?.id || '';
-      empPhone.value = e.phone;
-      }
+     if (id) {
+       await apiCall(`${API.EMP}/${id}`, 'PUT', emp);
+     } else {
+       await apiCall(API.EMP, 'POST', emp);
+     }
+
+     clearEmployeeForm();
+     loadEmployees(0);
+   });
+
+
+   // Initial Loads
 
    loadDeptDropdown();
    loadEmployees(0);
-}
+ }
 
     /* ================= NAVIGATION ================= */
     function showSection(section, event) {
