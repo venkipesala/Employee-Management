@@ -125,7 +125,6 @@ const projectEnd = document.getElementById("projectEnd");
 
 
    /* ================= EMPLOYEE ================= */
-  const empSize = 5;
 
   document.getElementById('employeeForm')
   .addEventListener('submit', async e => {
@@ -248,8 +247,6 @@ const projectEnd = document.getElementById("projectEnd");
   }
 
   /* ================= DEPARTMENT ================= */
-  const deptSize = 5;
-
   async function loadDepartments(page = 0) {
   deptPage = page;
   const data = await apiCall(
@@ -353,8 +350,6 @@ document.getElementById('deptForm')
 
 
     /* ================= PROJECT ================= */
-    const projectSize = 5;
-
     async function loadProjects(page = 0) {
 
       projectPage = page;
@@ -421,8 +416,6 @@ document.getElementById('deptForm')
 
   async function openProjectAssign(id, name){
       assignProjectId = id;
-      assignDeptId = null; // disable dept mode
-
       const proj = await apiCall(`${API.PROJ}/${id}`);
 
       currentAssignedEmpIds =
@@ -607,7 +600,7 @@ document.getElementById('deptForm')
 
   async function openAssign(id, name) {
     assignDeptId = id;
-    assignProjectId = null;
+   /* assignProjectId = null;**/
 
     // Load dept employees first
     const dept = await apiCall(`${API.DEPT}/${id}`);
@@ -629,8 +622,8 @@ document.getElementById('deptForm')
     document.getElementById('assignModal')
       .style.display = 'none';
 
-    assignDeptId = null;
-    assignProjectId = null;
+    /*assignDeptId = null;
+    assignProjectId = null;*/
 
     currentAssignedEmpIds = [];
 
