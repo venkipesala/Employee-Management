@@ -62,7 +62,7 @@ function init() {
 
      e.preventDefault();
 
-     const emp = {
+     emp = {
        name: empName.value,
        email: empEmail.value,
        deptId: empDept.value,
