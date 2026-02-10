@@ -4,19 +4,39 @@ const API_KEY = "JBaXPwTkVz3SjPpDa44sG1lJ1mUdSVqHayP3LOwV";
 const API = {
   EMP: `${BASE_API}/api/employees`,
   DEPT: `${BASE_API}/api/departments`,
-  PROJ: `${BASE_API}/api`/projects`
+  PROJ: `${BASE_API}/api/projects`
 };
+
+/* ================= GLOBAL STATE ================= */
+
+let empPage = 0;
+let deptPage = 0;
+let projectPage = 0;
+
+const empSize = 5;
+const deptSize = 5;
+const projectSize = 5;
+
+let assignDeptId = null;
+let currentDeptId = null;
+let assignProjectId = null;
+let currentAssignedEmpIds = [];
+
+/* ================= DOM ELEMENTS ================= */
+
+let empName, empEmail, empDept, empPhone, empId;
+let deptId, deptName, deptLocation;
+let projectId, projectName, projectStatus, projectStart, projectEnd;
+
 
 document.addEventListener("DOMContentLoaded", () => {
    init();
 });
 
 function init() {
-   loadDeptDropdown();
-   loadEmployees(0);
-}
 
-// Make elements global
+// Make elements global and Bind DOM elements AFTER page loads
+
 const empName = document.getElementById("empName");
 const empEmail = document.getElementById("empEmail");
 const empDept = document.getElementById("empDept");
@@ -33,6 +53,9 @@ const projectStatus = document.getElementById("projectStatus");
 const projectStart = document.getElementById("projectStart");
 const projectEnd = document.getElementById("projectEnd");
 
+   loadDeptDropdown();
+   loadEmployees(0);
+}
 /* ================= API CONFIG ================= */
 
     let assignDeptId = null;
