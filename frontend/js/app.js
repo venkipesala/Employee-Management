@@ -63,6 +63,48 @@ function init() {
 
   loadDeptDropdown();
   loadEmployees(0);
+
+
+  /* ================= NAVIGATION ================= */
+
+  function showSection(section, event) {
+
+    // Hide all sections
+    document
+      .querySelectorAll(".container")
+      .forEach(div => div.classList.add("hidden"));
+
+    // Show selected section
+    document
+      .getElementById(section + "-section")
+      .classList.remove("hidden");
+
+    // Active button
+    document
+      .querySelectorAll("nav button")
+      .forEach(btn => btn.classList.remove("active"));
+
+    if (event && event.target) {
+      event.target.classList.add("active");
+    }
+
+    // Reset + Reload
+
+    if (section === "employee") {
+      document.getElementById("empSearch").value = "";
+      loadEmployees(0);
+    }
+
+    if (section === "department") {
+      loadDepartments(0);
+    }
+
+    if (section === "project") {
+      document.getElementById("projectSearch").value = "";
+      loadProjects(0);
+    }
+  }
+
 }
 
 
