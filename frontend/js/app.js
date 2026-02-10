@@ -53,6 +53,39 @@ const projectStatus = document.getElementById("projectStatus");
 const projectStart = document.getElementById("projectStart");
 const projectEnd = document.getElementById("projectEnd");
 
+    document.getElementById('employeeForm')
+      .addEventListener('submit', async e => {
+
+      e.preventDefault();
+
+      const emp = {
+        name: empName.value,
+        email: empEmail.value,
+        deptId: empDept.value,
+        phone: empPhone.value
+      };
+
+      const id = empId.value;
+
+      if (id) {
+        await apiCall(`${API.EMP}/${id}`, 'PUT', emp);
+      } else {
+        await apiCall(API.EMP, 'POST', emp);
+      }
+
+      clearEmployeeForm();
+      loadEmployees(0);
+      });
+
+      function editEmployee(e) {
+
+      empId.value = e.id;
+      empName.value = e.name;
+      empEmail.value = e.email;
+      empDept.value = e.department?.id || '';
+      empPhone.value = e.phone;
+      }
+
    loadDeptDropdown();
    loadEmployees(0);
 }
@@ -125,53 +158,17 @@ const projectEnd = document.getElementById("projectEnd");
 
 
    /* ================= EMPLOYEE ================= */
-
-  document.getElementById('employeeForm')
-  .addEventListener('submit', async e => {
-
-  e.preventDefault();
-
-  const emp = {
-    name: empName.value,
-    email: empEmail.value,
-    deptId: empDept.value,
-    phone: empPhone.value
-  };
-
-  const id = empId.value;
-
-  if (id) {
-    await apiCall(`${API.EMP}/${id}`, 'PUT', emp);
-  } else {
-    await apiCall(API.EMP, 'POST', emp);
-  }
-
-  clearEmployeeForm();
-  loadEmployees(0);
-  });
-
-  function editEmployee(e) {
-
-  empId.value = e.id;
-  empName.value = e.name;
-  empEmail.value = e.email;
-  empDept.value = e.department?.id || '';
-  empPhone.value = e.phone;
-  }
-
-
   async function deleteEmployee(id) {
+      if (!confirm('Delete employee?')) return;
 
-  if (!confirm('Delete employee?')) return;
+      await apiCall(`${API.EMP}/${id}`, 'DELETE');
 
-  await apiCall(`${API.EMP}/${id}`, 'DELETE');
-
-  loadEmployees(empPage);
-  }
+      loadEmployees(empPage);
+      }
 
   function clearEmployeeForm() {
-  empId.value = '';
-  document.getElementById('employeeForm').reset();
+      empId.value = '';
+      document.getElementById('employeeForm').reset();
   }
 
   async function loadEmployees(page = 0) {
