@@ -56,13 +56,6 @@ const projectEnd = document.getElementById("projectEnd");
    loadDeptDropdown();
    loadEmployees(0);
 }
-/* ================= API CONFIG ================= */
-
-    let assignDeptId = null;
-    let currentDeptId = null;
-    let assignProjectId = null;
-
-    let currentAssignedEmpIds = [];
 
     /* ================= NAVIGATION ================= */
     function showSection(section, event) {
@@ -132,7 +125,6 @@ const projectEnd = document.getElementById("projectEnd");
 
 
    /* ================= EMPLOYEE ================= */
-  let empPage = 0;
   const empSize = 5;
 
   document.getElementById('employeeForm')
@@ -256,7 +248,6 @@ const projectEnd = document.getElementById("projectEnd");
   }
 
   /* ================= DEPARTMENT ================= */
-  let deptPage = 0;
   const deptSize = 5;
 
   async function loadDepartments(page = 0) {
@@ -362,7 +353,6 @@ document.getElementById('deptForm')
 
 
     /* ================= PROJECT ================= */
-    let projectPage = 0;
     const projectSize = 5;
 
     async function loadProjects(page = 0) {
