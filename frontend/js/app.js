@@ -4,89 +4,42 @@ const API_KEY = "JBaXPwTkVz3SjPpDa44sG1lJ1mUdSVqHayP3LOwV";
 const API = {
   EMP: `${BASE_API}/api/employees`,
   DEPT: `${BASE_API}/api/departments`,
-  PROJ: `${BASE_API}/api/projects`
+  PROJ: `${BASE_API}/api`/projects`
 };
-
-/* ================= GLOBAL STATE ================= */
-
-let empPage = 0;
-let deptPage = 0;
-let projectPage = 0;
-
-const empSize = 5;
-const deptSize = 5;
-const projectSize = 5;
-
-let assignDeptId = null;
-let currentDeptId = null;
-let assignProjectId = null;
-let currentAssignedEmpIds = [];
-
-/* ================= DOM ELEMENTS ================= */
-
-let empName, empEmail, empDept, empPhone, empId;
-let deptId, deptName, deptLocation;
-let projectId, projectName, projectStatus, projectStart, projectEnd;
-
 
 document.addEventListener("DOMContentLoaded", () => {
    init();
 });
 
 function init() {
-
-   // Bind DOM
-
-   empName = document.getElementById("empName");
-   empEmail = document.getElementById("empEmail");
-   empDept = document.getElementById("empDept");
-   empPhone = document.getElementById("empPhone");
-   empId = document.getElementById("empId");
-
-   deptId = document.getElementById("deptId");
-   deptName = document.getElementById("deptName");
-   deptLocation = document.getElementById("deptLocation");
-
-   projectId = document.getElementById("projectId");
-   projectName = document.getElementById("projectName");
-   projectStatus = document.getElementById("projectStatus");
-   projectStart = document.getElementById("projectStart");
-   projectEnd = document.getElementById("projectEnd");
-
-
-   // Bind Employee Form AFTER DOM loaded
-
-   const empForm = document.getElementById("employeeForm");
-
-   empForm.addEventListener("submit", async e => {
-
-     e.preventDefault();
-
-     emp = {
-       name: empName.value,
-       email: empEmail.value,
-       deptId: empDept.value,
-       phone: empPhone.value
-     };
-
-     const id = empId.value;
-
-     if (id) {
-       await apiCall(`${API.EMP}/${id}`, 'PUT', emp);
-     } else {
-       await apiCall(API.EMP, 'POST', emp);
-     }
-
-     clearEmployeeForm();
-     loadEmployees(0);
-   });
-
-
-   // Initial Loads
-
    loadDeptDropdown();
    loadEmployees(0);
- }
+}
+
+// Make elements global
+const empName = document.getElementById("empName");
+const empEmail = document.getElementById("empEmail");
+const empDept = document.getElementById("empDept");
+const empPhone = document.getElementById("empPhone");
+const empId = document.getElementById("empId");
+
+const deptId = document.getElementById("deptId");
+const deptName = document.getElementById("deptName");
+const deptLocation = document.getElementById("deptLocation");
+
+const projectId = document.getElementById("projectId");
+const projectName = document.getElementById("projectName");
+const projectStatus = document.getElementById("projectStatus");
+const projectStart = document.getElementById("projectStart");
+const projectEnd = document.getElementById("projectEnd");
+
+/* ================= API CONFIG ================= */
+
+    let assignDeptId = null;
+    let currentDeptId = null;
+    let assignProjectId = null;
+
+    let currentAssignedEmpIds = [];
 
     /* ================= NAVIGATION ================= */
     function showSection(section, event) {
@@ -156,17 +109,55 @@ function init() {
 
 
    /* ================= EMPLOYEE ================= */
+  let empPage = 0;
+  const empSize = 5;
+
+  document.getElementById('employeeForm')
+  .addEventListener('submit', async e => {
+
+  e.preventDefault();
+
+  const emp = {
+    name: empName.value,
+    email: empEmail.value,
+    deptId: empDept.value,
+    phone: empPhone.value
+  };
+
+  const id = empId.value;
+
+  if (id) {
+    await apiCall(`${API.EMP}/${id}`, 'PUT', emp);
+  } else {
+    await apiCall(API.EMP, 'POST', emp);
+  }
+
+  clearEmployeeForm();
+  loadEmployees(0);
+  });
+
+  function editEmployee(e) {
+
+  empId.value = e.id;
+  empName.value = e.name;
+  empEmail.value = e.email;
+  empDept.value = e.department?.id || '';
+  empPhone.value = e.phone;
+  }
+
+
   async function deleteEmployee(id) {
-      if (!confirm('Delete employee?')) return;
 
-      await apiCall(`${API.EMP}/${id}`, 'DELETE');
+  if (!confirm('Delete employee?')) return;
 
-      loadEmployees(empPage);
-      }
+  await apiCall(`${API.EMP}/${id}`, 'DELETE');
+
+  loadEmployees(empPage);
+  }
 
   function clearEmployeeForm() {
-      empId.value = '';
-      document.getElementById('employeeForm').reset();
+  empId.value = '';
+  document.getElementById('employeeForm').reset();
   }
 
   async function loadEmployees(page = 0) {
@@ -242,6 +233,9 @@ function init() {
   }
 
   /* ================= DEPARTMENT ================= */
+  let deptPage = 0;
+  const deptSize = 5;
+
   async function loadDepartments(page = 0) {
   deptPage = page;
   const data = await apiCall(
@@ -345,6 +339,9 @@ document.getElementById('deptForm')
 
 
     /* ================= PROJECT ================= */
+    let projectPage = 0;
+    const projectSize = 5;
+
     async function loadProjects(page = 0) {
 
       projectPage = page;
@@ -411,6 +408,8 @@ document.getElementById('deptForm')
 
   async function openProjectAssign(id, name){
       assignProjectId = id;
+      assignDeptId = null; // disable dept mode
+
       const proj = await apiCall(`${API.PROJ}/${id}`);
 
       currentAssignedEmpIds =
@@ -595,7 +594,7 @@ document.getElementById('deptForm')
 
   async function openAssign(id, name) {
     assignDeptId = id;
-   /* assignProjectId = null;**/
+    assignProjectId = null;
 
     // Load dept employees first
     const dept = await apiCall(`${API.DEPT}/${id}`);
@@ -617,8 +616,8 @@ document.getElementById('deptForm')
     document.getElementById('assignModal')
       .style.display = 'none';
 
-    /*assignDeptId = null;
-    assignProjectId = null;*/
+    assignDeptId = null;
+    assignProjectId = null;
 
     currentAssignedEmpIds = [];
 
