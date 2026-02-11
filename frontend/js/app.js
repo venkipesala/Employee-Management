@@ -9,7 +9,6 @@ const API = {
   PROJ: `${BASE_API}/api/projects`
 };
 
-
 /* ================= STATE ================= */
 
 let empPage = 0;
@@ -20,18 +19,11 @@ const empSize = 5;
 const deptSize = 5;
 const projectSize = 5;
 
-let assignDeptId = null;
-let currentDeptId = null;
-let assignProjectId = null;
-let currentAssignedEmpIds = [];
-
-
 /* ================= DOM ================= */
 
 let empName, empEmail, empDept, empPhone, empId;
 let deptId, deptName, deptLocation;
 let projectId, projectName, projectStatus, projectStart, projectEnd;
-
 
 /* ================= INIT ================= */
 
@@ -39,25 +31,21 @@ document.addEventListener("DOMContentLoaded", init);
 
 function init() {
 
-  // Employee
   empName = document.getElementById("empName");
   empEmail = document.getElementById("empEmail");
   empDept = document.getElementById("empDept");
   empPhone = document.getElementById("empPhone");
   empId = document.getElementById("empId");
 
-  // Department
   deptId = document.getElementById("deptId");
   deptName = document.getElementById("deptName");
   deptLocation = document.getElementById("deptLocation");
 
-  // Project
   projectId = document.getElementById("projectId");
   projectName = document.getElementById("projectName");
   projectStatus = document.getElementById("projectStatus");
   projectStart = document.getElementById("projectStart");
   projectEnd = document.getElementById("projectEnd");
-
 
   bindForms();
 
@@ -65,50 +53,42 @@ function init() {
   loadEmployees(0);
 }
 
-  /* ================= NAVIGATION ================= */
+/* ================= NAVIGATION ================= */
 
-  function showSection(section, event) {
+function showSection(section, event) {
 
-    // Hide all sections
-    document
-      .querySelectorAll(".container")
-      .forEach(div => div.classList.add("hidden"));
+  document
+    .querySelectorAll(".container")
+    .forEach(div => div.classList.add("hidden"));
 
-    // Show selected section
-    document
-      .getElementById(section + "-section")
-      .classList.remove("hidden");
+  document
+    .getElementById(section + "-section")
+    .classList.remove("hidden");
 
-    // Active button
-    document
-      .querySelectorAll("nav button")
-      .forEach(btn => btn.classList.remove("active"));
+  document
+    .querySelectorAll("nav button")
+    .forEach(btn => btn.classList.remove("active"));
 
-    if (event && event.target) {
-      event.target.classList.add("active");
-    }
-
-    // Reset + Reload
-
-    if (section === "employee") {
-      document.getElementById("empSearch").value = "";
-      loadEmployees(0);
-    }
-
-    if (section === "department") {
-      loadDepartments(0);
-    }
-
-    if (section === "project") {
-      document.getElementById("projectSearch").value = "";
-      loadProjects(0);
-    }
+  if (event && event.target) {
+    event.target.classList.add("active");
   }
 
+  if (section === "employee") {
+    document.getElementById("empSearch").value = "";
+    loadEmployees(0);
+  }
 
+  if (section === "department") {
+    loadDepartments(0);
+  }
 
+  if (section === "project") {
+    document.getElementById("projectSearch").value = "";
+    loadProjects(0);
+  }
+}
 
-/* ================= FORM BINDING ================= */
+/* ================= FORMS ================= */
 
 function bindForms() {
 
@@ -124,7 +104,6 @@ function bindForms() {
     .getElementById("projectForm")
     .addEventListener("submit", handleProjectSubmit);
 }
-
 
 /* ================= API ================= */
 
@@ -154,7 +133,6 @@ async function apiCall(url, method = "GET", data = null) {
   return text ? JSON.parse(text) : null;
 }
 
-
 /* ================= EMPLOYEE ================= */
 
 async function handleEmployeeSubmit(e) {
@@ -180,12 +158,10 @@ async function handleEmployeeSubmit(e) {
   loadEmployees(0);
 }
 
-
 function clearEmployeeForm() {
   empId.value = "";
   document.getElementById("employeeForm").reset();
 }
-
 
 async function deleteEmployee(id) {
 
@@ -195,7 +171,6 @@ async function deleteEmployee(id) {
 
   loadEmployees(empPage);
 }
-
 
 async function loadEmployees(page = 0) {
 
@@ -235,12 +210,8 @@ async function loadEmployees(page = 0) {
           <td>${e.department?.name || "N/A"}</td>
           <td>${e.phone}</td>
           <td>
-            <button onclick='editEmployee(${JSON.stringify(e)})'>
-              Edit
-            </button>
-            <button onclick='deleteEmployee(${e.id})'>
-              Delete
-            </button>
+            <button onclick='editEmployee(${JSON.stringify(e)})'>Edit</button>
+            <button onclick='deleteEmployee(${e.id})'>Delete</button>
           </td>
         </tr>
       `;
@@ -253,7 +224,6 @@ async function loadEmployees(page = 0) {
   }
 }
 
-
 function editEmployee(e) {
 
   empId.value = e.id;
@@ -262,7 +232,6 @@ function editEmployee(e) {
   empDept.value = e.department?.id || "";
   empPhone.value = e.phone;
 }
-
 
 function renderEmpPagination(total) {
 
@@ -287,11 +256,9 @@ function renderEmpPagination(total) {
   }
 }
 
-
 function searchEmployees() {
   loadEmployees(0);
 }
-
 
 function showAllEmployees() {
 
@@ -299,7 +266,6 @@ function showAllEmployees() {
 
   loadEmployees(0);
 }
-
 
 /* ================= DEPARTMENT ================= */
 
@@ -323,7 +289,6 @@ async function handleDeptSubmit(e) {
   clearDeptForm();
   loadDepartments(0);
 }
-
 
 async function loadDepartments(page = 0) {
 
@@ -352,12 +317,8 @@ async function loadDepartments(page = 0) {
         <td>${d.name}</td>
         <td>${d.location}</td>
         <td>
-          <button onclick='editDept(${JSON.stringify(d)})'>
-            Edit
-          </button>
-          <button onclick='deleteDept(${d.id})'>
-            Delete
-          </button>
+          <button onclick='editDept(${JSON.stringify(d)})'>Edit</button>
+          <button onclick='deleteDept(${d.id})'>Delete</button>
         </td>
       </tr>
     `;
@@ -366,26 +327,19 @@ async function loadDepartments(page = 0) {
   renderDeptPagination(data.totalPages);
 }
 
-
 function editDept(d) {
 
   deptId.value = d.id;
   deptName.value = d.name;
   deptLocation.value = d.location;
-
-  currentDeptId = d.id;
 }
-
 
 function clearDeptForm() {
 
   deptId.value = "";
 
   document.getElementById("deptForm").reset();
-
-  currentDeptId = null;
 }
-
 
 function renderDeptPagination(total) {
 
@@ -409,7 +363,6 @@ function renderDeptPagination(total) {
     div.appendChild(btn);
   }
 }
-
 
 /* ================= PROJECT ================= */
 
@@ -435,7 +388,6 @@ async function handleProjectSubmit(e) {
   clearProjectForm();
   loadProjects();
 }
-
 
 async function loadProjects(page = 0) {
 
@@ -470,12 +422,8 @@ async function loadProjects(page = 0) {
         <td>${p.status}</td>
         <td>${p.employees?.length || 0}</td>
         <td>
-          <button onclick='editProject(${JSON.stringify(p)})'>
-            Edit
-          </button>
-          <button onclick='deleteProject(${p.id})'>
-            Delete
-          </button>
+          <button onclick='editProject(${JSON.stringify(p)})'>Edit</button>
+          <button onclick='deleteProject(${p.id})'>Delete</button>
         </td>
       </tr>
     `;
@@ -483,7 +431,6 @@ async function loadProjects(page = 0) {
 
   renderProjectPagination(data.totalPages);
 }
-
 
 function editProject(p) {
 
@@ -494,14 +441,12 @@ function editProject(p) {
   projectEnd.value = p.endDate || "";
 }
 
-
 function clearProjectForm() {
 
   projectId.value = "";
 
   document.getElementById("projectForm").reset();
 }
-
 
 /* ================= DROPDOWN ================= */
 
@@ -525,7 +470,6 @@ async function loadDeptDropdown() {
       `<option value="${d.id}">${d.name}</option>`;
   });
 }
-
 
 /* ================= UTILS ================= */
 
