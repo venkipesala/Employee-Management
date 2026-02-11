@@ -4,7 +4,7 @@ const API_KEY = "JBaXPwTkVz3SjPpDa44sG1lJ1mUdSVqHayP3LOwV";
 const API = {
   EMP: `${BASE_API}/api/employees`,
   DEPT: `${BASE_API}/api/departments`,
-  PROJ: `${BASE_API}/api`/projects`
+  PROJ: `${BASE_API}/api/projects`
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -81,7 +81,6 @@ const projectEnd = document.getElementById("projectEnd");
         loadProjects(0);
       }
     }
-
 
     /* ================= COMMON API ================= */
     async function apiCall(url, method = 'GET', data = null) {
@@ -186,9 +185,6 @@ const projectEnd = document.getElementById("projectEnd");
               <td>${e.name}</td>
               <td>${e.email}</td>
               <td>${e.department?.name || 'N/A'}</td>
-              <td>
-                ${e.projects?.map(p => p.name).join(', ') || ''}
-              </td>
               <td>${e.phone}</td>
               <td>
                 <button class="btn-edit"
