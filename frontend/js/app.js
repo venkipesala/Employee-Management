@@ -63,7 +63,7 @@ function init() {
 
   loadDeptDropdown();
   loadEmployees(0);
-
+}
 
   /* ================= NAVIGATION ================= */
 
@@ -105,7 +105,7 @@ function init() {
     }
   }
 
-}
+
 
 
 /* ================= FORM BINDING ================= */
