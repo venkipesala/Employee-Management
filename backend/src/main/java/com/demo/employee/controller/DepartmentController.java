@@ -4,6 +4,7 @@ import com.demo.employee.entity.Department;
 import com.demo.employee.service.DepartmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,8 +47,9 @@ public class DepartmentController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete Department")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable Long id) {
         service.delete(id);
+        return ResponseEntity.ok("Department deleted");
     }
 
     @GetMapping

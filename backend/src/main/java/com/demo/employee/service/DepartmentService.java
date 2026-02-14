@@ -5,8 +5,10 @@ import com.demo.employee.entity.Employee;
 import com.demo.employee.repository.DepartmentRepository;
 import com.demo.employee.repository.EmployeeRepository;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -42,19 +44,22 @@ public class DepartmentService {
 
     // DELETE
     public void delete(Long deptId) {
-
         if (!deptRepo.existsById(deptId)) {
-            throw new RuntimeException("Department not found");
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Department not found"
+            );
         }
         long empCount = empRepo.countByDepartmentId(deptId);
-
         if (empCount > 0) {
-            throw new RuntimeException(
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
                     "Cannot delete department. Employees are assigned."
             );
         }
         deptRepo.deleteById(deptId);
     }
+
 
     public Page<Department> getDepartments(
             int page,
