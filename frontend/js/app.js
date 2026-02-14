@@ -301,18 +301,41 @@ const projectEnd = document.getElementById("projectEnd");
   }
 
   function editDept(d) {
-  deptId.value = d.id;
-  deptName.value = d.name;
-  deptLocation.value = d.location;
+      deptId.value = d.id;
+      deptName.value = d.name;
+      deptLocation.value = d.location;
 
-  currentDeptId = d.id;
-
-  loadDeptEmployees('');
+      currentDeptId = d.id;
+      loadDeptEmployees('');
   }
+
+async function deleteDept(id) {
+  if (!confirm("Delete department?")) return;
+  try {
+
+    // 🔥 Step 1: Get department details
+    const dept = await apiCall(`${API.DEPT}/${id}`);
+
+    // 🔥 Step 2: Check if employees assigned
+    if (dept.employees && dept.employees.length > 0) {
+      alert("Cannot delete department. Employees are assigned.");
+      return;
+    }
+
+    // 🔥 Step 3: Delete department
+    await apiCall(`${API.DEPT}/${id}`, "DELETE");
+
+    alert("Department deleted successfully");
+
+    loadDepartments(deptPage);
+  } catch (err) {
+    console.error(err);
+    alert("Delete failed: " + err.message);
+  }
+}
 
 document.getElementById('deptForm')
   .addEventListener('submit', async e => {
-
     e.preventDefault();
 
     const dept = {
