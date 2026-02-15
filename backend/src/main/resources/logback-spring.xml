@@ -7,19 +7,16 @@
     <!-- Console appender (for debugging) -->
     <appender name="CONSOLE"
               class="ch.qos.logback.core.ConsoleAppender">
-
         <encoder>
             <pattern>
                 %d{yyyy-MM-dd HH:mm:ss} %-5level %logger - %msg%n
             </pattern>
         </encoder>
-
     </appender>
 
     <!-- File appender -->
     <appender name="FILE"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
-
         <file>${LOG_FILE}</file>
 
         <rollingPolicy
@@ -30,16 +27,26 @@
             </fileNamePattern>
 
             <maxHistory>5</maxHistory>
-
         </rollingPolicy>
-
         <encoder>
             <pattern>
                 %d{yyyy-MM-dd HH:mm:ss} %-5level %logger - %msg%n
             </pattern>
         </encoder>
-
     </appender>
+
+    <appender name="SPLUNK"
+              class="com.splunk.logging.HttpEventCollectorLogbackAppender">
+        <url>https://3.111.144.128:8088</url>
+        <token>87725304-9b2f-43f3-b1c3-e3f94f9fc514</token>
+        <index>employee_app_logs</index>
+        <sourcetype>spring_boot_logs</sourcetype>
+        <disableCertificateValidation>true</disableCertificateValidation>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="SPLUNK"/>
+    </root>
 
     <!-- Root logger -->
     <root level="INFO">
