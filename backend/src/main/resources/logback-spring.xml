@@ -35,7 +35,7 @@
         </encoder>
     </appender>
 
-    <appender name="SPLUNK"
+    <!--appender name="SPLUNK"
               class="com.splunk.logging.HttpEventCollectorLogbackAppender">
         <url>https://3.111.144.128:8088</url>
         <token>87725304-9b2f-43f3-b1c3-e3f94f9fc514</token>
@@ -46,7 +46,7 @@
 
     <root level="INFO">
         <appender-ref ref="SPLUNK"/>
-    </root>
+    </root-->
 
     <!-- Root logger -->
     <root level="INFO">
